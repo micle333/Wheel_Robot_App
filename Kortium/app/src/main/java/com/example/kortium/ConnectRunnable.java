@@ -1,7 +1,10 @@
 package com.example.kortium;
 
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -83,6 +86,7 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                             logger.info("End of packet");
                             readingPacket = false;
                             activity.logPacket(packet);
+                            DisplayPacket(packet);
                             sendPacket(packet);
 
                         } else {
@@ -104,6 +108,27 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                 closeConnection();
             }
         }
+        private void sendBroadcastMessage(String message) {
+            Intent intent = new Intent("NEW_MESSAGE");
+            intent.putExtra("message", message);
+            LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
+        }
+
+        public void DisplayPacket(List<Byte> packet) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Packet In: [");
+            for (int i = 0; i < packet.size(); i++) {
+                sb.append(String.format("0x%02X", packet.get(i)));
+                if (i < packet.size() - 1) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]");
+            sendBroadcastMessage(sb.toString());
+            Logger.getLogger("PacketLogger").info(sb.toString());
+        }
+
+
 
         public void sendPacket(List<Byte> packet) {
             if (socket != null && !socket.isClosed()) {

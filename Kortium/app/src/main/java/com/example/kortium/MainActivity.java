@@ -2,9 +2,11 @@ package com.example.kortium;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -70,7 +72,28 @@ public class MainActivity extends AppCompatActivity {
 
     private View dimView;
     private LinearLayout overlayForm;
-    private FrameLayout mainFrame;
+    private RelativeLayout mainFrame;
+
+    // Начальное изображение
+    final int leftinitialImage = R.drawable.left_turn;
+    // Изображение при нажатии
+    final int lefttoggledImage = R.drawable.left_turn_active;
+
+    final int rightinitialImage = R.drawable.right_turn;
+    // Изображение при нажатии
+    final int righttoggledImage = R.drawable.right_turn_active;
+
+    // Переменная, чтобы отслеживать состояние кнопки
+    final boolean[] leftIsToggled = {false};
+    final boolean[] rightIsToggled = {false};
+
+
+    // Начальное изображение
+    final int initialImage = R.drawable.stop_ic;
+    // Изображение при удержании
+    final int pressedImage = R.drawable.break_active;
+
+
 
 
     @SuppressLint("MissingInflatedId")
@@ -106,13 +129,19 @@ public class MainActivity extends AppCompatActivity {
 //        black_back = findViewById(R.id.black_back);
         error_frame = findViewById(R.id.error_frame);
 
-//        sendButton.setVisibility(View.GONE);
+        sendButton.setVisibility(View.GONE);
         messageField.setVisibility(View.GONE);
 //        outputView.setVisibility(View.GONE);
         error_frame.setVisibility(View.GONE);
 
-        mainFrame = findViewById(R.id.background_frame);
+        mainFrame = findViewById(R.id.MainLayout);
         joystick= findViewById(R.id.joystick);
+
+//      Поворотники
+        ImageButton leftTurnButton = findViewById(R.id.left_turn);
+        ImageButton rightTurnButton = findViewById(R.id.right_turn);
+        ImageButton stopButton = findViewById(R.id.stop);
+
 
 
 
@@ -187,6 +216,49 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        leftTurnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Переключение изображения
+                if (leftIsToggled[0]) {
+                    leftTurnButton.setImageResource(leftinitialImage);
+                } else {
+                    leftTurnButton.setImageResource(lefttoggledImage);
+                }
+                leftIsToggled[0] = !leftIsToggled[0]; // Смена состояния
+            }
+        });
+
+        rightTurnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Переключение изображения
+                if (rightIsToggled[0]) {
+                    rightTurnButton.setImageResource(rightinitialImage);
+                } else {
+                    rightTurnButton.setImageResource(righttoggledImage);
+                }
+                rightIsToggled[0] = !rightIsToggled[0]; // Смена состояния
+            }
+        });
+
+        stopButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Меняем изображение на нажатое
+                        stopButton.setImageResource(pressedImage);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        // Возвращаем начальное изображение после отпускания
+                        stopButton.setImageResource(initialImage);
+                        break;
+                }
+                return true; // Обрабатываем событие нажатия
+            }
+        });
         // Инициализация DrawerLayout и NavigationView
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
@@ -214,13 +286,11 @@ public class MainActivity extends AppCompatActivity {
 
                 if (id == R.id.action_messages) {
                     // Обработка нажатия на Home
-                    Toast.makeText(MainActivity.this, "Home clicked", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, MessagesActivity.class);
+                    startActivity(intent);
                 } else if (id == R.id.action_disconnect) {
                     // Обработка нажатия на Settings
                     Toast.makeText(MainActivity.this, "Settings clicked", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.action_messages) {
-                    // Обработка нажатия на Messages (если есть такой пункт)
-                    Toast.makeText(MainActivity.this, "Messages clicked", Toast.LENGTH_SHORT).show();
                 }
                 // Закрываем меню после нажатия
                 drawerLayout.closeDrawer(GravityCompat.START);
@@ -253,17 +323,17 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 dimView.setVisibility(View.VISIBLE);
                 overlayForm.setVisibility(View.VISIBLE);
-//                final ViewGroup rootView = (ViewGroup) findViewById(R.id.background_frame);
-//                if (rootView != null) {
-//                    rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//                        @Override
-//                        public void onGlobalLayout() {
-//                            // Теперь можно безопасно вызывать Blurry
-//                        Blurry.with(MainActivity.this).radius(25).onto(rootView);
-//                        rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//                        }
-//                    });
-//                }
+                final ViewGroup rootView = (ViewGroup) findViewById(R.id.MainLayout);
+                if (rootView != null) {
+                    rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            // Теперь можно безопасно вызывать Blurry
+                        Blurry.with(MainActivity.this).radius(25).onto(rootView);
+                        rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                    });
+                }
 //                rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 //                ipAddressField.setVisibility(View.VISIBLE);
 //                portField.setVisibility(View.VISIBLE);
@@ -287,10 +357,10 @@ public class MainActivity extends AppCompatActivity {
 //                connecting_error.setVisibility(View.GONE);
                 error_frame.setVisibility(View.GONE);
 //
-//                final ViewGroup rootView = (ViewGroup) findViewById(R.id.background_frame);
-//                if (rootView != null) {
-//                    Blurry.delete(rootView);
-//                }
+                final ViewGroup rootView = (ViewGroup) findViewById(R.id.MainLayout);
+                if (rootView != null) {
+                    Blurry.delete(rootView);
+                }
 //                outputView.setVisibility(View.VISIBLE);
 //                outputView.setText("Connected to " + ipAddress + ":" + port);
 
@@ -336,12 +406,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         sb.append("]");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                outputView.append(sb.toString() + "\n");
-            }
-        });
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                outputView.append(sb.toString() + "\n");
+//            }
+//        });
         Logger.getLogger("PacketLogger").info(sb.toString());
     }
 
