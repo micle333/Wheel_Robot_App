@@ -1,0 +1,19 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <!-- Полупрозрачный белый фон -->
+            <solid android:color="#40FFFFFF"/> <!-- #80FFFFFF - полупрозрачный белый цвет -->
+            <corners android:radius="12dp"/> <!-- Скругленные углы -->
+
+            <stroke android:width="2dp" android:color="#007CFF"/> <!-- Синяя рамка при фокусе -->
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Полупрозрачный белый фон по умолчанию -->
+            <solid android:color="#20FFFFFF"/> <!-- #80FFFFFF - полупрозрачный белый цвет -->
+            <corners android:radius="12dp"/> <!-- Скругленные углы -->
+<!--            <stroke android:width="2dp" android:color="#80FFFFFF"/> &lt;!&ndash; Серая рамка по умолчанию &ndash;&gt;-->
+        </shape>
+    </item>
+</selector>

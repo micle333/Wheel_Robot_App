@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Тема приложения -->
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Основные цвета -->
+        <item name="android:textColorHighlight">@color/colorBackground</item> <!-- Цвет выделенного текста -->
+        <item name="android:textColorLink">@color/colorBackground</item> <!-- Цвет ссылок -->
+        <item name="android:colorControlHighlight">@color/colorBackground</item> <!-- Цвет выделения для различных элементов -->
+        <item name="colorPrimary">@color/colorBackground</item>
+        <item name="colorPrimaryDark">@color/colorBackground</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item> <!-- Статус-бар -->
+        <item name="android:navigationBarColor">@color/colorPrimary</item> <!-- Цвет навигационной панели -->
+        <item name="android:windowBackground">@color/colorBackground</item> <!-- Фон окна -->
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+</resources>

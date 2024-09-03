@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Основной контент -->
+    <RelativeLayout
+        android:id="@+id/MainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- FrameLayout для размытого фона -->
+        <FrameLayout
+            android:id="@+id/background_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Изображение, которое будет растянуто на весь экран -->
+            <ImageView
+                android:id="@+id/error_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/error_frame" />
+
+            <!-- Центральное изображение -->
+            <ImageView
+                android:id="@+id/center_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:scaleType="fitCenter"
+                android:layout_marginTop="60dp"
+                android:layout_marginBottom="60dp"
+                android:src="@drawable/cybertruck" />
+
+            <!-- Joystick -->
+            <com.example.kortium.JoystickView
+                android:id="@+id/joystick"
+                android:layout_gravity="bottom|end"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp" />
+
+            <!-- Поле ввода сообщения -->
+            <EditText
+                android:id="@+id/message_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:hint="Enter message"
+                android:layout_below="@id/connect_button" />
+
+            <!-- Кнопка отправки сообщения -->
+            <Button
+                android:id="@+id/send_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:text="Send"
+                android:backgroundTint="@android:color/holo_blue_dark"
+                android:textColor="@android:color/white"
+                android:layout_below="@id/message_field" />
+
+            <!-- Вывод результата -->
+            <TextView
+                android:id="@+id/output"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="150dp"
+                android:layout_below="@id/send_button"
+                android:padding="16dp"
+                android:text="Output will be displayed here" />
+        </FrameLayout>
+
+        <!-- DrawerLayout для бокового меню -->
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Основной контент для DrawerLayout -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <!-- Кнопка для открытия меню -->
+                <ImageButton
+                    android:id="@+id/menu_button"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="16dp"
+                    android:scaleType="fitCenter"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/toolbar_icon" />
+            </LinearLayout>
+
+            <!-- NavigationView для бокового меню -->
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/navigation_view"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:fitsSystemWindows="true"
+                android:background="?android:attr/colorBackground" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+    </RelativeLayout>
+
+    <!-- Затемняющий слой для формы (overlay) -->
+    <View
+        android:id="@+id/dim_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone" />
+
+    <!-- Плавающая форма для ввода IP и порта -->
+    <LinearLayout
+        android:id="@+id/overlay_form"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/ip_address"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/edit_text_background"
+            android:cursorVisible="true"
+            android:hint="Enter IP Address"
+            android:inputType="text"
+            android:padding="10dp"
+            android:paddingLeft="16dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:text="10.42.0.1"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/port"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:background="@drawable/edit_text_background"
+            android:cursorVisible="true"
+            android:hint="Enter Port"
+            android:inputType="text"
+            android:padding="10dp"
+            android:paddingLeft="16dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:text="4513"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/connect_button"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:padding="10dp"
+            android:background="@drawable/button_background"
+            android:text="Connect"
+            android:textColor="@drawable/text_selector"
+            android:fontFamily="@font/nexa_heavy" />
+
+        <TextView
+            android:id="@+id/connecting_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="" />
+    </LinearLayout>
+
+</FrameLayout>
