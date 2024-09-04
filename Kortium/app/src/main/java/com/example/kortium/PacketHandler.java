@@ -6,9 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 
 public class PacketHandler {
@@ -193,7 +191,7 @@ public class PacketHandler {
         }
     }
 
-    public class DataExtractor {
+    public static class DataExtractor {
 
         private PacketHandler.PacketFormat packetFormat;
         private byte[] body;
@@ -262,7 +260,7 @@ public class PacketHandler {
         }
     }
 
-    public class DataPacker {
+    public static class DataPacker {
 
         private byte senderId;
         private List<Object> data;
@@ -386,7 +384,7 @@ public class PacketHandler {
 
     }
 
-    public class PackagePacker {
+    public static class PackagePacker {
 
         // Calculate CRC8
         private byte calculateCRC(byte[] byteString) {
@@ -406,15 +404,15 @@ public class PacketHandler {
         }
 
         // Pack the line
-        public byte[] pack(byte[] line) {
+        public byte[] pack(DataPacker line) {
             ByteBuffer buffer = ByteBuffer.allocate(1024);
 
             // Add start byte
             buffer.put(PACK_START);
 
             // Add the line and calculate the CRC
-            buffer.put(line);
-            buffer.put(calculateCRC(concatArrays(PACK_START, line)));
+//            buffer.put(line);
+//            buffer.put(calculateCRC(concatArrays(PACK_START, line)));
 
             // Handle escape bytes and add escape byte at the end
             byte[] escapedBuffer = escapeBytes(buffer.array(), buffer.position());

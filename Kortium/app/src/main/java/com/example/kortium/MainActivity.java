@@ -94,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
     final int pressedImage = R.drawable.break_active;
 
 
-
-
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,9 +140,6 @@ public class MainActivity extends AppCompatActivity {
         ImageButton rightTurnButton = findViewById(R.id.right_turn);
         ImageButton stopButton = findViewById(R.id.stop);
 
-
-
-
         dimView = findViewById(R.id.dim_view);
         overlayForm = findViewById(R.id.overlay_form);
 
@@ -171,18 +166,26 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    try {
-                        int port = Integer.parseInt(portText);
-                        thread = new Thread(new ConnectRunnable(MainActivity.this, ipAddress, port));
-                        thread.start();
-                    } catch (NumberFormatException e) { // Показать сообщение пользователю, если порт не является числом
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                connecting_error.setText("Please enter a valid port number.");
-                                error_frame.setVisibility(View.VISIBLE);
-                            }
-                        });
+                    if (ipAddress.equals("enter")) {
+                        Logger logger = Logger.getLogger("SocketLogger") ;
+                        logger.info("Enter code input!");
+                        DeactivateConnectingWindow();
+                    } else {
+                        try {
+
+                            int port = Integer.parseInt(portText);
+                            thread = new Thread(new ConnectRunnable(MainActivity.this, ipAddress, port));
+                            thread.start();
+                        } catch (
+                                NumberFormatException e) { // Показать сообщение пользователю, если порт не является числом
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    connecting_error.setText("Please enter a valid port number.");
+                                    error_frame.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -345,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void DeactivateConnectingWindow(String ipAddress, int port){
+    public void DeactivateConnectingWindow(){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

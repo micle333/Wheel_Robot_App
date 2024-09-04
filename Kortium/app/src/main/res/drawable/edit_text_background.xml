@@ -4,7 +4,6 @@
             <!-- Полупрозрачный белый фон -->
             <solid android:color="#40FFFFFF"/> <!-- #80FFFFFF - полупрозрачный белый цвет -->
             <corners android:radius="12dp"/> <!-- Скругленные углы -->
-
             <stroke android:width="2dp" android:color="#007CFF"/> <!-- Синяя рамка при фокусе -->
         </shape>
     </item>

@@ -67,14 +67,6 @@
                 android:fontFamily="@font/nexa_heavy"
                 android:text="75%" />
 
-            <!-- Красная рамка -->
-            <ImageView
-                android:id="@+id/error_frame"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/error_frame" />
-
             <!-- Центральное изображение -->
             <ImageView
                 android:id="@+id/center_image"
@@ -124,6 +116,13 @@
                 android:layout_below="@id/send_button"
                 android:padding="16dp"
                 android:text="" />
+            <!-- Красная рамка -->
+            <ImageView
+                android:id="@+id/error_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/error_frame" />
         </RelativeLayout>
 
         <!-- Toolbar, размещенная поверх FrameLayout -->
@@ -236,6 +235,7 @@
             android:singleLine="true"
             android:text="10.42.0.1"
             android:textColor="@drawable/text_selector"
+            android:defaultFocusHighlightEnabled="false"
             android:textColorHint="#808080"
             android:textSize="16sp" />
         <!--        android:hint="Enter IP address" -->

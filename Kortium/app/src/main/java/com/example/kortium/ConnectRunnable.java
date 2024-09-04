@@ -49,7 +49,7 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        activity.DeactivateConnectingWindow(ipAddress, port);
+                        activity.DeactivateConnectingWindow();
                     }
                 });
                 // Запуск потока для прослушивания сообщений от сервера
@@ -86,6 +86,7 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                             logger.info("End of packet");
                             readingPacket = false;
                             activity.logPacket(packet);
+                            pack(new List[]{packet});
                             DisplayPacket(packet);
                             sendPacket(packet);
 
@@ -180,7 +181,60 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                 e.printStackTrace();
             }
         }
+
+
     }
 
+    private String bytesToHexStr(byte[] byteData) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : byteData) {
+            hexString.append(String.format("%02x ", b));
+        }
+        return hexString.toString().trim();
+    }
 
+    // Позволяет отправить один пакет с данными и получить вывод в виде байт-строки
+    public byte[] pack(Object[] inputData) {
+        PacketHandler.PackagePacker packagePacker = new PacketHandler.PackagePacker();
+        PacketHandler.DataPacker packer = new PacketHandler.DataPacker((String) inputData[0]);
+        byte[] byteStr = packagePacker.pack(packer);
+
+        // Вывод отправленного пакета в HEX формате
+        System.out.println("Отправленный пакет: " + bytesToHexStr(byteStr));
+        System.out.println("Данные: " + inputData);
+
+        return byteStr;
+    }
+
+    // Позволяет отправить байт-последовательность и получить вывод данных из неё
+    public List<Object> unpack(byte[] receivedData) {
+        PacketHandler.PackageFinder finder = new PacketHandler.PackageFinder();
+        List<Object> resData = new ArrayList<>();
+        int counter = 0;
+
+        for (int i = 0; i < receivedData.length; i++) {
+            byte[] singleByte = new byte[] { receivedData[i] };
+            Object[] result = finder.checkByte(singleByte[0]);
+
+            if (result != null) {
+                System.out.println();
+                if (result[0] == null) {
+                    System.out.println(result[1]);
+                } else {
+                    String string = (result[1] instanceof byte[])
+                            ? bytesToHexStr((byte[]) result[1])
+                            : result[1].toString();
+                    resData.add(new PacketHandler.DataExtractor(result).extract());
+                    System.out.println("TYPE: " + result[0].toString().toUpperCase() + ", CONTENT: " + string);
+                    System.out.println("DATA: " + resData.get(counter));
+                    counter++;
+                    System.out.println();
+                }
+                System.out.println("-----------------------------------------------");
+            }
+        }
+
+        // Возвращает список всех полученных данных из поданной байт-последовательности
+        return resData;
+    }
 }
