@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -53,13 +55,13 @@ import jp.wasabeef.blurry.Blurry;
 public class MainActivity extends AppCompatActivity {
 
     private EditText ipAddressField, portField, messageField;
-    private TextView outputView, connecting_error;
+    private TextView outputView, connecting_error, speed_title, local_x, local_y;
     private Button connectButton;
     private Button sendButton;
     private Socket socket;
     private BufferedReader input;
     private PrintWriter output;
-    private Thread thread;
+    private Thread connectRunnable;
     private ImageView black_back, error_frame;
     // Переменные для хранения состояния соединения и объектов socket
     private InputStream inputStream = null;
@@ -93,7 +95,9 @@ public class MainActivity extends AppCompatActivity {
     // Изображение при удержании
     final int pressedImage = R.drawable.break_active;
 
-
+    private Handler handler = new Handler();
+    private long lastPacketSentTime = 0; // Время последней отправки пакета
+    private static final long PACKET_SEND_DELAY_MS = 50;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
         sendButton = findViewById(R.id.send_button);
 //        black_back = findViewById(R.id.black_back);
         error_frame = findViewById(R.id.error_frame);
+        speed_title = findViewById(R.id.wheel_spped);
+        local_x = findViewById(R.id.local_x);
+        local_y = findViewById(R.id.local_y);
 
         sendButton.setVisibility(View.GONE);
         messageField.setVisibility(View.GONE);
@@ -150,6 +157,10 @@ public class MainActivity extends AppCompatActivity {
         imm.showSoftInput(ipAddressField, InputMethodManager.SHOW_IMPLICIT);
         imm.showSoftInput(portField, InputMethodManager.SHOW_IMPLICIT);
 
+        String ipAddress = "";
+        int port = 8080;
+
+        ConnectRunnable connectRunnable = new ConnectRunnable(MainActivity.this, ipAddress, port);
 
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,8 +185,16 @@ public class MainActivity extends AppCompatActivity {
                         try {
 
                             int port = Integer.parseInt(portText);
-                            thread = new Thread(new ConnectRunnable(MainActivity.this, ipAddress, port));
+
+                            // Создайте экземпляр ConnectRunnable
+                            connectRunnable.setIpAddressAndPort(ipAddress, port);
+                            Thread thread = new Thread(connectRunnable);
                             thread.start();
+
+                            connectRunnable.addTask(() -> {
+                                connectRunnable.connectingToSocket();
+                            });
+
                         } catch (
                                 NumberFormatException e) { // Показать сообщение пользователю, если порт не является числом
                             runOnUiThread(new Runnable() {
@@ -219,14 +238,63 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        joystick.setJoystickListener(new JoystickView.JoystickListener() {
+            @Override
+            public void onJoystickMove(float x, float y) {
+                // Преобразование координат джойстика
+                double normalizedX = (x - 270) / 150;
+                double normalizedY = (y - 270) / 150 * -1;
+
+                // Получаем текущее время
+                long currentTime = System.currentTimeMillis();
+
+                // Проверяем, прошло ли достаточно времени с последней отправки пакета
+                if (currentTime - lastPacketSentTime >= PACKET_SEND_DELAY_MS) {
+                    // Обновляем время последней отправки
+                    lastPacketSentTime = currentTime;
+
+                    List<Object> inputData = new ArrayList<>();
+                    inputData.add("OPERATOR");
+                    inputData.add("NKR");
+                    List<Object> nestedList = new ArrayList<>(Arrays.asList(normalizedY, normalizedX, normalizedX * -1.0));
+                    inputData.add(nestedList);
+
+                    PackerAndUnpacker packerAndUnpacker = new PackerAndUnpacker();
+                    List<Byte> packed_byte = packerAndUnpacker.pack(inputData);
+
+                    // Отправляем пакет с задержкой
+                    handler.post(() -> {
+                        connectRunnable.addTask(() -> connectRunnable.sendPacket(inputData));
+
+                        // Обработка координат джойстика
+                        Log.d("Joystick", "Joystick moved: x=" + normalizedX + ", y=" + normalizedY);
+                    });
+                }
+            }
+            @Override
+            public void onJoystickRelease() {
+                // Обработка отпускания джойстика
+                Log.d("Joystick", "Joystick released");
+                // Здесь можно добавить код для обработки отпускания
+            }
+        });
         leftTurnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Переключение изображения
                 if (leftIsToggled[0]) {
                     leftTurnButton.setImageResource(leftinitialImage);
+                    connectRunnable.addTask(() -> {
+                        List<Object> inputData = Arrays.asList("OPERATOR","LLI",Arrays.asList(0));
+                        connectRunnable.sendPacket(inputData);
+                    });
+
                 } else {
                     leftTurnButton.setImageResource(lefttoggledImage);
+                    connectRunnable.addTask(() -> {
+                        List<Object> inputData = Arrays.asList("OPERATOR","LLI",Arrays.asList(1));
+                        connectRunnable.sendPacket(inputData);
+                    });
                 }
                 leftIsToggled[0] = !leftIsToggled[0]; // Смена состояния
             }
@@ -238,8 +306,17 @@ public class MainActivity extends AppCompatActivity {
                 // Переключение изображения
                 if (rightIsToggled[0]) {
                     rightTurnButton.setImageResource(rightinitialImage);
+                    connectRunnable.addTask(() -> {
+                        List<Object> inputData = Arrays.asList("OPERATOR","RLI",Arrays.asList(0));
+                        connectRunnable.sendPacket(inputData);
+                    });
+
                 } else {
                     rightTurnButton.setImageResource(righttoggledImage);
+                    connectRunnable.addTask(() -> {
+                        List<Object> inputData = Arrays.asList("OPERATOR","RLI",Arrays.asList(1));
+                        connectRunnable.sendPacket(inputData);
+                    });
                 }
                 rightIsToggled[0] = !rightIsToggled[0]; // Смена состояния
             }
@@ -252,9 +329,17 @@ public class MainActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         // Меняем изображение на нажатое
                         stopButton.setImageResource(pressedImage);
+                        connectRunnable.addTask(() -> {
+                            List<Object> inputData = Arrays.asList("OPERATOR","SLI",Arrays.asList(1));
+                            connectRunnable.sendPacket(inputData);
+                        });
                         break;
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
+                        connectRunnable.addTask(() -> {
+                            List<Object> inputData = Arrays.asList("OPERATOR","SLI",Arrays.asList(0));
+                            connectRunnable.sendPacket(inputData);
+                        });
                         // Возвращаем начальное изображение после отпускания
                         stopButton.setImageResource(initialImage);
                         break;
@@ -284,7 +369,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 // Обработка нажатий на элементы меню
-
                 int id = item.getItemId();
 
                 if (id == R.id.action_messages) {
@@ -380,6 +464,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void ChangeSpeed(String speed){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                speed_title.setText(speed);
+            }
+        });
+    }
+
+    public void ChangeLocalCoordinates(String x, String y){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                local_x.setText(x);
+                local_y.setText(y);
+            }
+        });
+    }
+
 
     private void closeConnection() {
         Logger logger = Logger.getLogger("SocketLogger");

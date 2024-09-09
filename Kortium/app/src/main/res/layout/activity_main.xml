@@ -146,6 +146,35 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/toolbar_icon" />
 
+        <LinearLayout
+            android:id="@+id/text_fields_container"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_height="24dp"
+            android:layout_toEndOf="@id/menu_button"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/local_x"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nexa_heavy"
+                android:text="X:  ----"
+                android:textColor="@color/white"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/local_y"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nexa_heavy"
+                android:text="Y:  ----"
+                android:textColor="@color/white"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
         <RelativeLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"

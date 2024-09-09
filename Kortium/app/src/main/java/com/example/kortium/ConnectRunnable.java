@@ -1,6 +1,7 @@
 package com.example.kortium;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -14,7 +15,11 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import jp.wasabeef.blurry.Blurry;
@@ -27,16 +32,49 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
     private PrintWriter output;
     private Socket socket;
     private MainActivity activity;
+    private Queue<Runnable> taskQueue = new LinkedList<>();
+    private final Object lock = new Object();
     public ConnectRunnable(MainActivity activity, String ipAddress, int port) {
         this.activity = activity;
         this.ipAddress = ipAddress;
         this.port = port;
     }
 
+    public void setIpAddressAndPort(String ipAddress, int port) {
+        this.ipAddress = ipAddress;
+        this.port = port;
+    }
     @Override
     public void run() {
-        Logger logger = Logger.getLogger("SocketLogger");
 
+        while (true) {
+            Runnable task;
+            synchronized (lock) {
+                while (taskQueue.isEmpty()) {
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                task = taskQueue.poll();
+            }
+            if (task != null) {
+                task.run();
+            }
+        }
+
+    }
+
+    public void addTask(Runnable task) {
+        synchronized (lock) {
+            taskQueue.offer(task);
+            lock.notify();
+        }
+    }
+
+    public void connectingToSocket(){
+        Logger logger = Logger.getLogger("SocketLogger");
         try {
             closeConnection();
             try {
@@ -69,9 +107,9 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
         Logger logger = Logger.getLogger("SocketLogger");
         @Override
         public void run() {
-            logger.info("MessageListener Started");
+//            logger.info("MessageListener Started");
             try {
-                logger.info("Try to read buffer");
+//                logger.info("Try to read buffer");
                 BufferedInputStream in = new BufferedInputStream(inputStream);
                 List<Byte> packet = new ArrayList<>();
                 boolean readingPacket = false;
@@ -83,15 +121,15 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                         b = in.read();
                         if (b == 0x03) {
                             packet.add((byte) b);
-                            logger.info("End of packet");
+//                            logger.info("End of packet");
                             readingPacket = false;
                             activity.logPacket(packet);
-                            pack(new List[]{packet});
+//                            pack(new List[]{packet});
                             DisplayPacket(packet);
-                            sendPacket(packet);
+//                            sendPacket(packet);
 
                         } else {
-                            logger.info("Start adding bites");
+//                            logger.info("Start adding bites");
                             readingPacket = true;
                             packet.clear();
                             packet.add((byte) 0x10);
@@ -126,31 +164,42 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
             }
             sb.append("]");
             sendBroadcastMessage(sb.toString());
-            Logger.getLogger("PacketLogger").info(sb.toString());
-        }
-
-
-
-        public void sendPacket(List<Byte> packet) {
-            if (socket != null && !socket.isClosed()) {
-                try {
-                    // Преобразование List<Byte> в byte[]
-                    byte[] byteArray = new byte[packet.size()];
-                    for (int i = 0; i < packet.size(); i++) {
-                        byteArray[i] = packet.get(i);
-                    }
-                    // Отправка байтового массива через сокет
-                    OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(byteArray);
-                    outputStream.flush();  // Убедитесь, что все данные отправлены
-
-                    // Логирование отправленных данных в HEX формате
-                    logBytes(byteArray);
-
-                } catch (IOException e) {
-                    Logger.getLogger("SocketLogger").severe("Error sending packet: " + e.getMessage());
+            PackerAndUnpacker packerAndUnpacker = new PackerAndUnpacker();
+            List<Object> unpackedData = packerAndUnpacker.unpack(packet);
+            StringBuilder unpacked = new StringBuilder();
+            unpacked.append(String.format("TYPE: %s    ", unpackedData.get(0).toString()));
+            for (int l = 1; l < unpackedData.size(); l++) {
+                Object element = unpackedData.get(l);
+                if (element instanceof Object[]) {
+                    unpacked.append(String.format("DATA[%d]: %s%n", l, Arrays.toString((Object[]) element)));
+                } else {
+                    unpacked.append(String.format("DATA[%d]: %s%n", l, element.toString()));
                 }
             }
+            sendBroadcastMessage(unpacked.toString());
+
+            Object Data = unpackedData.get(1);
+
+            if (Data instanceof Object[]) {
+                Object[] DataArray = (Object[]) Data;
+                if (DataArray.length > 0) {
+
+                    if (unpackedData.get(0).toString() == "ATMS"){
+                        Object Speed = DataArray[DataArray.length - 1];
+                        activity.ChangeSpeed(Speed.toString());
+                    }
+
+                    if (unpackedData.get(0).toString() == "ATMC"){
+                        Object x = DataArray[DataArray.length - 4];
+                        Object y = DataArray[DataArray.length - 3];
+                        activity.ChangeLocalCoordinates("X:   " + x.toString(), "Y:   " + y.toString());
+                    }
+                }
+            }
+
+
+
+            Logger.getLogger("PacketLogger").info(sb.toString());
         }
 
         // Метод для логирования байтов в HEX формате
@@ -163,6 +212,40 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
         }
 
 
+    }
+
+    public void sendPacket(List<Object> inputData) {
+        Logger logger = Logger.getLogger("SocketLogger");
+        if (socket != null && !socket.isClosed()) {
+            try {
+                PackerAndUnpacker packerAndUnpacker = new PackerAndUnpacker();
+//                logger.info(inputData.toString());
+                List<Byte> packed_byte = packerAndUnpacker.pack(inputData);
+//                logger.info(packed_byte.toString());
+
+                StringBuilder byteString = new StringBuilder();
+                for (Byte b : packed_byte) {
+                    byteString.append(String.format("%02X ", b)); // Вывод каждого байта в шестнадцатеричном формате
+                }
+
+                Log.d("PackedByte", "Packed Bytes: " + byteString.toString());
+
+                byte[] byteArray = new byte[packed_byte.size()];
+                for (int i = 0; i < packed_byte.size(); i++) {
+                    byteArray[i] = packed_byte.get(i);
+                }
+                // Отправка байтового массива через сокет
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(byteArray);
+                outputStream.flush();  // Убедитесь, что все данные отправлены
+
+                // Логирование отправленных данных в HEX формате
+//                logBytes(byteArray);
+
+            } catch (IOException e) {
+                Logger.getLogger("SocketLogger").severe("Error sending packet: " + e.getMessage());
+            }
+        }
     }
     private void closeConnection() {
         Logger logger = Logger.getLogger("SocketLogger");
@@ -185,56 +268,5 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
 
     }
 
-    private String bytesToHexStr(byte[] byteData) {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : byteData) {
-            hexString.append(String.format("%02x ", b));
-        }
-        return hexString.toString().trim();
-    }
 
-    // Позволяет отправить один пакет с данными и получить вывод в виде байт-строки
-    public byte[] pack(Object[] inputData) {
-        PacketHandler.PackagePacker packagePacker = new PacketHandler.PackagePacker();
-        PacketHandler.DataPacker packer = new PacketHandler.DataPacker((String) inputData[0]);
-        byte[] byteStr = packagePacker.pack(packer);
-
-        // Вывод отправленного пакета в HEX формате
-        System.out.println("Отправленный пакет: " + bytesToHexStr(byteStr));
-        System.out.println("Данные: " + inputData);
-
-        return byteStr;
-    }
-
-    // Позволяет отправить байт-последовательность и получить вывод данных из неё
-    public List<Object> unpack(byte[] receivedData) {
-        PacketHandler.PackageFinder finder = new PacketHandler.PackageFinder();
-        List<Object> resData = new ArrayList<>();
-        int counter = 0;
-
-        for (int i = 0; i < receivedData.length; i++) {
-            byte[] singleByte = new byte[] { receivedData[i] };
-            Object[] result = finder.checkByte(singleByte[0]);
-
-            if (result != null) {
-                System.out.println();
-                if (result[0] == null) {
-                    System.out.println(result[1]);
-                } else {
-                    String string = (result[1] instanceof byte[])
-                            ? bytesToHexStr((byte[]) result[1])
-                            : result[1].toString();
-                    resData.add(new PacketHandler.DataExtractor(result).extract());
-                    System.out.println("TYPE: " + result[0].toString().toUpperCase() + ", CONTENT: " + string);
-                    System.out.println("DATA: " + resData.get(counter));
-                    counter++;
-                    System.out.println();
-                }
-                System.out.println("-----------------------------------------------");
-            }
-        }
-
-        // Возвращает список всех полученных данных из поданной байт-последовательности
-        return resData;
-    }
 }

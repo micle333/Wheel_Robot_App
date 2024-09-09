@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/telemetry"
+        android:title="Telemetry"
+        android:icon="@drawable/telemetry_icon" />
+    <item
         android:id="@+id/action_messages"
         android:title="Messages"
         android:icon="@drawable/settings" />
@@ -10,7 +14,7 @@
         android:icon="@drawable/drone_icon" />
     <item
         android:id="@+id/video_connecting"
-        android:title="Vide"
+        android:title="Video"
         android:icon="@drawable/video_veed_icon" />
     <item
         android:id="@+id/action_disconnect"
