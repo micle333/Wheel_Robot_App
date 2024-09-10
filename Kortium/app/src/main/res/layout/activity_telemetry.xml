@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="top">
+
+    <!-- Первый RelativeLayout -->
+    <RelativeLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:padding="30dp"
+        > <!-- Дистанция между элементами -->
+
+        <TextView
+            android:id="@+id/GPS_titile"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="GPS"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="26sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_below="@id/GPS_titile"
+            android:layout_marginTop="0dp"
+            android:layout_marginLeft="10dp"
+            android:background="@color/black" />
+
+        <TextView
+            android:id="@+id/DPDO_title"
+            android:paddingTop="20dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="DPDO"
+            android:textColor="@color/black"
+            android:layout_below="@+id/GPS_titile"
+            android:layout_alignParentStart="true"
+            android:textSize="14sp" />
+
+        <!-- Второе TextView, прижато к правой стороне -->
+        <TextView
+            android:id="@+id/pdopTextView"
+            android:paddingTop="20dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="10dp"
+            android:paddingEnd="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="---"
+            android:layout_below="@+id/GPS_titile"
+            android:textColor="@color/black"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/Sattelites_title"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:layout_below="@+id/pdopTextView"
+            android:text="Sattelites"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/satellitesTextView"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="---"
+            android:layout_below="@+id/pdopTextView"
+            android:textColor="@color/black"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/SNS_title"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:layout_below="@+id/satellitesTextView"
+            android:text="SNS"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/snsModeTextView"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="---"
+            android:layout_below="@+id/satellitesTextView"
+            android:textColor="@color/black"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/Lat_title"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:layout_below="@+id/snsModeTextView"
+            android:text="Latitude"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/altitudeTextView"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="---"
+            android:layout_below="@+id/snsModeTextView"
+            android:textColor="@color/black"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/Lon_titile"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:layout_below="@+id/altitudeTextView"
+            android:text="Longetude"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/longetudeTextView"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="---"
+            android:layout_below="@+id/altitudeTextView"
+            android:textColor="@color/black"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp" />
+    </RelativeLayout>
+
+    <!-- Второй RelativeLayout -->
+    <RelativeLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:padding="30dp">
+
+        <TextView
+            android:id="@+id/Sensors_titile"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="Sensors"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="26sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_below="@id/Sensors_titile"
+            android:layout_marginTop="0dp"
+            android:background="@color/black"
+            android:layout_marginLeft="10dp"/>
+
+        <TextView
+            android:id="@+id/humidity_titile"
+            android:paddingTop="20dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:layout_below="@+id/Sensors_titile"
+            android:text="Humidity"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/humidityTextView"
+            android:paddingTop="20dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="10dp"
+            android:paddingEnd="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="---%"
+            android:layout_below="@+id/Sensors_titile"
+            android:textColor="@color/black"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp" />
+
+
+        <TextView
+            android:id="@+id/Pressure_titile"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:layout_below="@+id/humidityTextView"
+            android:text="Pressure"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/pressureTextView"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="---mm"
+            android:layout_below="@+id/humidityTextView"
+            android:textColor="@color/black"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/temperature_title"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:layout_below="@+id/Pressure_titile"
+            android:text="Temperature"
+            android:textColor="@color/black"
+            android:layout_alignParentStart="true"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/temperatureTextView"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nexa_heavy"
+            android:text="---C"
+            android:layout_below="@+id/Pressure_titile"
+            android:textColor="@color/black"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp" />
+        <!-- Ваши элементы внутри RelativeLayout -->
+    </RelativeLayout>
+
+</LinearLayout>

@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     // Переменная, чтобы отслеживать состояние кнопки
     final boolean[] leftIsToggled = {false};
     final boolean[] rightIsToggled = {false};
+    ViewGroup rootView;
 
 
     // Начальное изображение
@@ -141,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
 
         mainFrame = findViewById(R.id.MainLayout);
         joystick= findViewById(R.id.joystick);
+        rootView = (ViewGroup) findViewById(R.id.MainLayout);
+
 
 //      Поворотники
         ImageButton leftTurnButton = findViewById(R.id.left_turn);
@@ -183,9 +186,7 @@ public class MainActivity extends AppCompatActivity {
                         DeactivateConnectingWindow();
                     } else {
                         try {
-
                             int port = Integer.parseInt(portText);
-
                             // Создайте экземпляр ConnectRunnable
                             connectRunnable.setIpAddressAndPort(ipAddress, port);
                             Thread thread = new Thread(connectRunnable);
@@ -377,7 +378,13 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 } else if (id == R.id.action_disconnect) {
                     // Обработка нажатия на Settings
-                    Toast.makeText(MainActivity.this, "Settings clicked", Toast.LENGTH_SHORT).show();
+                    connectRunnable.addTask(() -> {
+                        connectRunnable.closeConnection();
+                    });
+                    Toast.makeText(MainActivity.this, "close connecting", Toast.LENGTH_SHORT).show();
+                } else if (id == R.id.telemetry) {
+                    Intent intent = new Intent(MainActivity.this, TelemetryActivity.class);
+                    startActivity(intent);
                 }
                 // Закрываем меню после нажатия
                 drawerLayout.closeDrawer(GravityCompat.START);
@@ -410,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 dimView.setVisibility(View.VISIBLE);
                 overlayForm.setVisibility(View.VISIBLE);
-                final ViewGroup rootView = (ViewGroup) findViewById(R.id.MainLayout);
+//
                 if (rootView != null) {
                     rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -444,10 +451,8 @@ public class MainActivity extends AppCompatActivity {
 //                connecting_error.setVisibility(View.GONE);
                 error_frame.setVisibility(View.GONE);
 //
-                final ViewGroup rootView = (ViewGroup) findViewById(R.id.MainLayout);
-                if (rootView != null) {
-                    Blurry.delete(rootView);
-                }
+//                final ViewGroup rootView = (ViewGroup) findViewById(R.id.MainLayout);
+                Blurry.delete(rootView);
 //                outputView.setVisibility(View.VISIBLE);
 //                outputView.setText("Connected to " + ipAddress + ":" + port);
 
@@ -499,8 +504,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             } catch (IOException e) {
+                logger.info("Cant close connection");
                 e.printStackTrace();
             }
+        } else {
+            logger.info("Cant close connection");
         }
     }
     public void logPacket(List<Byte> packet) {

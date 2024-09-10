@@ -185,8 +185,35 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                 if (DataArray.length > 0) {
 
                     if (unpackedData.get(0).toString() == "ATMS"){
+                        Intent intent = new Intent("TELEMETRY_UPDATE");
                         Object Speed = DataArray[DataArray.length - 1];
                         activity.ChangeSpeed(Speed.toString());
+                        String satellitesValue = DataArray[DataArray.length - 3].toString();
+                        String snsModeValue = DataArray[DataArray.length - 2].toString();
+                        intent.putExtra("SATELLITES", satellitesValue);
+                        intent.putExtra("SNS_MODE", snsModeValue);
+                        activity.sendBroadcast(intent);
+                    }
+                    if (unpackedData.get(0).toString() == "ATMI"){
+                        Intent intent = new Intent("TELEMETRY_UPDATE");
+                        String humidityValue = DataArray[DataArray.length - 1].toString();
+                        String temperatureValue = DataArray[DataArray.length - 2].toString();
+                        String pressureValue = DataArray[DataArray.length - 3].toString();
+                        intent.putExtra("HUMIDITY", humidityValue);
+                        intent.putExtra("PRESSURE", pressureValue);
+                        intent.putExtra("TEMPERATURE", temperatureValue);
+                        activity.sendBroadcast(intent);
+                    }
+
+                    if (unpackedData.get(0).toString() == "FTM"){
+                        Intent intent = new Intent("TELEMETRY_UPDATE");
+                        String Altitude = DataArray[DataArray.length - 2].toString();
+                        String Longitude = DataArray[DataArray.length - 1].toString();
+                        String pdopValue = DataArray[DataArray.length - 3].toString();
+                        intent.putExtra("PDOP", pdopValue);
+                        intent.putExtra("ALTI", Altitude);
+                        intent.putExtra("LONGE", Longitude);
+                        activity.sendBroadcast(intent);
                     }
 
                     if (unpackedData.get(0).toString() == "ATMC"){
@@ -247,7 +274,7 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
             }
         }
     }
-    private void closeConnection() {
+    public void closeConnection() {
         Logger logger = Logger.getLogger("SocketLogger");
         if (socket != null && !socket.isClosed()) {
             try {
@@ -264,8 +291,6 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                 e.printStackTrace();
             }
         }
-
-
     }
 
 
