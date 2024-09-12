@@ -1,0 +1,7 @@
+workspace/build/*
+workspace/devel/*
+workspace/src/platform_controller_comm/logs/*
+workspace/.catkin_workspace
+.idea/*
+__pycache__
+*.bag

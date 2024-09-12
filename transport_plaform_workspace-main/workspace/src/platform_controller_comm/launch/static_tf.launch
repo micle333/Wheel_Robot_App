@@ -1,0 +1,11 @@
+<launch>
+    <!-- Static transform from us_0_frame to base_link -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_transform_us_0_to_base_link" args="1.1 0.15 0 0 0 0 base_link us_0_frame" />
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_transform_us_1_to_base_link" args="1.1 0.65 0 0 0 0 base_link us_1_frame" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_transform_us_2_to_base_link" args="-1.1 0.65 0 3.14 0 0  base_link us_2_frame" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_transform_us_3_to_base_link" args="-1.1 -0.65 0 3.14 0 0 base_link us_3_frame" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_transform_us_4_to_base_link" args="1.1 -0.65 0 0 0 0 base_link us_4_frame" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_transform_us_5_to_base_link" args="1.1 -0.15 0 0 0 0 base_link us_5_frame" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_transform_rplidar_to_base_link" args="1.35 0 0 3.14 0 3.14 base_link laser_frame" />
+</launch>

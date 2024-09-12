@@ -1,0 +1,16 @@
+Header header
+float64 frontLeftWheelRate
+float64 frontRightWheelRate
+float64 rearLeftWheelRate
+float64 rearRightWheelRate
+float64 frontAxisTurn
+float64 rearAxisTurn
+float64 frontResolverVal
+float64 rearResolverVal
+float64 frontShaftRate
+float64 rearShaftRate
+bool frontAxisLimitRight
+bool rearAxisLimitRight
+bool frontAxisLimitLeft
+bool rearAxisLimitLeft
+

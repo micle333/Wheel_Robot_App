@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <!-- Light Control Node -->
+  <node pkg="platform_controller_comm" type="LightControl.py" name="light_control"/>
+
+  <!-- Bort server -->
+  <node pkg="connection_manager" type="bort_tester.py" name="remote_server" output="screen"/>
+
+</launch>

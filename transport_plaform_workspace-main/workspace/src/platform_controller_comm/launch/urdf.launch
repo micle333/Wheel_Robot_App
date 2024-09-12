@@ -1,0 +1,17 @@
+<launch>
+  <arg name="model" default="$(find platform_controller_comm)/urdf/transport_platform.urdf"/>
+
+  <!-- Запуск RViz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find platform_controller_comm)/rviz/lidar_and_US.rviz" required="true" />
+
+  <!-- Запуск узла для отображения модели -->
+  <param name="platform_controller_comm" command="$(find xacro)/xacro $(arg model)" />
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+  
+  <node name="tf_visualizer_publisher" pkg="platform_controller_comm" type="tf_visualizer.py" />
+
+  <!-- Запуск узла для визуализации модели в RViz -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+    
+  </node>
+</launch>

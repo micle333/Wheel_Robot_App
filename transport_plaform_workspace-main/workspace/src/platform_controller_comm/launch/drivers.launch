@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <param name="remote_watchdog" type="bool" value="True"/>
+  <!-- Central Hub Node -->
+  <node pkg="platform_controller_comm" type="CentralHub.py" name="central_hub" output="screen"/>
+
+  <!-- Front Motor Driver Node -->
+  <node pkg="platform_controller_comm" type="FMotorDriver.py" name="front_motor_driver" output="screen"/>
+
+  <!-- Rear Motor Driver Node -->
+  <node pkg="platform_controller_comm" type="RMotorDriver.py" name="rear_motor_driver" output="screen"/>
+
+  <!-- Check remote notebook connection -->
+  <node pkg="connection_manager" type="ping_watchdog.py" name="watchdog" output="screen"/>
+
+
+  <!-- Run Motor Control Scripts -->
+  <node pkg="platform_controller_comm" type="MotorsDriver.py" name="MotorsDriver" output="screen"/>
+
+</launch>

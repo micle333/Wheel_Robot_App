@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <param name="debug_mode" type="bool" value="True"/>
+  <!-- Central Hub Node -->
+  <node pkg="platform_controller_comm" type="CentralHub.py" name="central_hub" output="screen"/>
+
+  <!-- Light Control Node -->
+  <node pkg="platform_controller_comm" type="LightControl.py" name="light_control" output="screen"/>
+
+
+</launch>
