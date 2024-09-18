@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
     private long lastPacketSentTime = 0; // Время последней отправки пакета
-    private static final long PACKET_SEND_DELAY_MS = 50;
+    private static final long PACKET_SEND_DELAY_MS = 100;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -257,7 +257,8 @@ public class MainActivity extends AppCompatActivity {
                     List<Object> inputData = new ArrayList<>();
                     inputData.add("OPERATOR");
                     inputData.add("NKR");
-                    List<Object> nestedList = new ArrayList<>(Arrays.asList(normalizedY, normalizedX, normalizedX * -1.0));
+//                    normalizedY, normalizedX
+                    List<Object> nestedList = new ArrayList<>(Arrays.asList(normalizedY, normalizedX, 0.0, 0.0));
                     inputData.add(nestedList);
 
                     PackerAndUnpacker packerAndUnpacker = new PackerAndUnpacker();
@@ -273,10 +274,21 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             @Override
-            public void onJoystickRelease() {
-                // Обработка отпускания джойстика
+            public void onJoystickRelease() { // код для обработки отпускания джостика
+                List<Object> inputData = new ArrayList<>();
+                inputData.add("OPERATOR");
+                inputData.add("NKR");
+                List<Object> nestedList = new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0));
+                inputData.add(nestedList);
+
+                handler.post(() -> {
+                    connectRunnable.addTask(() -> connectRunnable.sendPacket(inputData));
+                    // Обработка координат джойстика
+                    Log.d("Joystick", "Joystick moved: x=" + 0 + ", y=" + 0);
+                });
+
                 Log.d("Joystick", "Joystick released");
-                // Здесь можно добавить код для обработки отпускания
+
             }
         });
         leftTurnButton.setOnClickListener(new View.OnClickListener() {

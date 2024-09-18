@@ -76,6 +76,7 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
     public void connectingToSocket(){
         Logger logger = Logger.getLogger("SocketLogger");
         try {
+            logger.info("Close while connectingToSocket");
             closeConnection();
             try {
                 socket = new Socket(ipAddress, port);
@@ -144,6 +145,8 @@ class ConnectRunnable implements Runnable { // Runnable для подключе�
                 logger.info("Cant Read");
                 Logger.getLogger("SocketLogger").severe("Error during listening for messages: " + e.getMessage());
             } finally {
+
+                logger.info("Close in Massege Listener");
                 closeConnection();
             }
         }

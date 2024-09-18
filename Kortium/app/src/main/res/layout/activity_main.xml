@@ -262,7 +262,7 @@
             android:paddingLeft="16dp"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:text="10.42.0.1"
+            android:text="192.168.2.235"
             android:textColor="@drawable/text_selector"
             android:defaultFocusHighlightEnabled="false"
             android:textColorHint="#808080"
@@ -288,7 +288,7 @@
             android:paddingLeft="16dp"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:text="4513"
+            android:text="8080"
             android:textColor="@drawable/text_selector"
             android:textColorHint="#808080"
             android:textSize="16sp" />
