@@ -33,6 +33,7 @@ public class PacketHandler {
     public static final byte UTM_ID = (byte) 0xf3;
     public static final byte FTM_ID = (byte) 0xf4;
     public static final byte STM_ID = (byte) 0xf5;
+    public static final byte STP_ID = 0x46;
     public static final byte UAV_ID = 0x44;
     public static final byte FCE_ID = 0x60;
     public static final byte FND_ID = 0x72;
@@ -75,6 +76,7 @@ public class PacketHandler {
         PACKS_BY_ID.put(LLI_ID, new PacketFormat("LLI", "<?", "CMD"));
         PACKS_BY_ID.put(RLI_ID, new PacketFormat("RLI", "<?", "CMD"));
         PACKS_BY_ID.put(RTS_ID, new PacketFormat("RTS", "<11b", "STS"));
+        PACKS_BY_ID.put(STP_ID, new PacketFormat("STP", "<?", "CMD"));
 
         for (Map.Entry<Byte, PacketFormat> entry : PACKS_BY_ID.entrySet()) {
             PACKS_BY_NAMES.put(entry.getValue().getName(), entry.getKey());

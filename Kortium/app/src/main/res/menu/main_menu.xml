@@ -17,6 +17,10 @@
         android:title="Video"
         android:icon="@drawable/video_veed_icon" />
     <item
+        android:id="@+id/settings"
+        android:title="Settings"
+        android:icon="@drawable/settings" />
+    <item
         android:id="@+id/action_disconnect"
         android:title="Disconnect"
         android:icon="@drawable/exit_icon" />

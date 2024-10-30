@@ -10,7 +10,7 @@
     <!-- Состояние по умолчанию -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#007DFF"/>
+            <solid android:color="#00B3FF"/>
             <corners android:radius="12dp"/><!-- Цвет кнопки по умолчанию (зеленый) -->
         </shape>
     </item>

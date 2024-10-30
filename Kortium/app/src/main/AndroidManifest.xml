@@ -28,6 +28,8 @@
             android:screenOrientation="landscape"/>
         <activity android:name=".TelemetryActivity"
             android:screenOrientation="landscape"/>
+        <activity android:name=".SettingsActivity"
+            android:screenOrientation="landscape"/>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

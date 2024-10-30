@@ -20,7 +20,7 @@ public class JoystickView extends View {
     private static final float JOYSTICK_RADIUS = 100; // Радиус видимого джойстика
     private static final float BACKGROUND_RADIUS = 200; // Расширенная область джойстика
     private static final float SENSITIVE_AREA_RADIUS = 300; // Чувствительная область
-
+    private boolean isLocked = false;
     private JoystickListener joystickListener;
 
     public JoystickView(Context context, AttributeSet attrs) {
@@ -77,8 +77,14 @@ public class JoystickView extends View {
         }
     }
 
+    public void setLocked(boolean locked) {
+        this.isLocked = locked;
+    }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (isLocked) {
+            return false; // Возвращаем false, чтобы ничего не обрабатывать
+        }
         float x = event.getX();
         float y = event.getY();
 
