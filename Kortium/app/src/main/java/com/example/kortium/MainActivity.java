@@ -215,8 +215,10 @@ public class MainActivity extends AppCompatActivity {
         ActivateConnecting();
 
         loadPreferences();
-//        joystick.setLocked(true);  // Блокировка джойстика
-//        joystick.setAlpha(0.5f);
+        verticalSeekBar.setEnabled(false);  // Блокировка джойстика
+        verticalSeekBar.setAlpha(0.5f);
+        horizontalSeekBar.setEnabled(false);  // Блокировка джойстика
+        horizontalSeekBar.setAlpha(0.5f);
         // Сохраняем данные при изменении текста
         ipAddressEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
@@ -323,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
                 double normalizedY = (progress - 50) / 50.0;
                 lastY = normalizedY;
                 joystickYMoving = true;
-                local_y.setText("Y: " + normalizedY);
+//                local_y.setText("Y: " + normalizedY);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
@@ -342,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
                 double normalizedX = (progress - 50) / 50.0;
                 lastX = normalizedX;
                 joystickXMoving = true;
-                local_x.setText("X: " + normalizedX);
+//                local_x.setText("X: " + normalizedX);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
@@ -513,6 +515,10 @@ public class MainActivity extends AppCompatActivity {
                     });
 //                    joystick.setLocked(false);
 //                    joystick.setAlpha(1.0f);
+                    verticalSeekBar.setEnabled(true);  // Разблокируем джойстика
+                    verticalSeekBar.setAlpha(1.0f);
+                    horizontalSeekBar.setEnabled(true);  // Разблокируем джойстика
+                    horizontalSeekBar.setAlpha(1.0f);
                 } else {
                     brackeLock.setImageResource(lockActive);
                     connectRunnable.addTask(() -> {
@@ -522,6 +528,10 @@ public class MainActivity extends AppCompatActivity {
 //                    joystick.setLocked(true);
 //                    // Блокировка джойстика
 //                    joystick.setAlpha(0.5f);
+                    verticalSeekBar.setEnabled(false);  // Блокировка джойстика
+                    verticalSeekBar.setAlpha(0.5f);
+                    horizontalSeekBar.setEnabled(false);  // Блокировка джойстика
+                    horizontalSeekBar.setAlpha(0.5f);
                 }
                 LockIsToggled[0] = !LockIsToggled[0]; // Смена состояния
             }
