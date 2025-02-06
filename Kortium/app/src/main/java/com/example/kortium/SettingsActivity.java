@@ -23,6 +23,11 @@ public class SettingsActivity extends AppCompatActivity {
         EditText rtspUrlInput = findViewById(R.id.rtspUrlInput);
         ImageButton saveButton = findViewById(R.id.saveButton);
 
+        // Получение переданной строки
+        String rtspUrl = getIntent().getStringExtra("RTSP_URL_EXTRA");
+        if (rtspUrl != null) {
+            rtspUrlInput.setText(rtspUrl); // Установка текста в EditText
+        }
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -65,10 +65,14 @@ import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.util.VLCVideoLayout;
 
 import jp.wasabeef.blurry.Blurry;
+import android.widget.SeekBar;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private SeekBar verticalSeekBar;
+    private SeekBar horizontalSeekBar;
+    private ConnectRunnable connectRunnable;
     private EditText ipAddressField, portField, messageField;
     private TextView outputView, connecting_error, speed_title, local_x, local_y, url_address;
     private Button connectButton;
@@ -76,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private Socket socket;
     private BufferedReader input;
     private PrintWriter output;
-    private Thread connectRunnable;
+//    private Thread connectRunnable;
     private ImageView black_back, error_frame;
     // Переменные для хранения состояния соединения и объектов socket
     private InputStream inputStream = null;
@@ -122,13 +126,15 @@ public class MainActivity extends AppCompatActivity {
     private static final long PACKET_SEND_DELAY_MS = 100;
     private static final String PREFS_NAME = "MyAppPrefs";
     private static final String IP_ADDRESS_KEY = "ip_address";
+    private static final String RTSP_ADDRESS = "rtsp_adress";
     private static final String PORT_KEY = "port";
     private EditText ipAddressEditText, portEditText;
 
     private final Handler jostick_handler = new Handler();
-    private final int PACKET_SEND_INTERVAL_MS = 100; // 10 Гц = каждые 100 мс
+    private final int PACKET_SEND_INTERVAL_MS = 150; // 10 Гц = каждые 100 мс
     private double lastX = 0.0, lastY = 0.0; // Хранение последних значений
-    private boolean joystickMoving = false;
+    private boolean joystickXMoving = false;
+    private boolean joystickYMoving = false;
 
     public String rtspUrl;
     private static final int REQUEST_CODE_SETTINGS = 1;
@@ -183,10 +189,16 @@ public class MainActivity extends AppCompatActivity {
         error_frame.setVisibility(View.GONE);
 
         mainFrame = findViewById(R.id.MainLayout);
-        joystick= findViewById(R.id.joystick);
+//        joystick= findViewById(R.id.joystick);
         rootView = (ViewGroup) findViewById(R.id.MainLayout);
         videoView = findViewById(R.id.videoView);
         videoView.setVisibility(View.GONE);
+
+        //Ползунки
+        verticalSeekBar = findViewById(R.id.verticalSeekBar);
+        horizontalSeekBar = findViewById(R.id.horizontalSeekBar);
+        verticalSeekBar.setProgress(50);
+        horizontalSeekBar.setProgress(50);
 
 
 
@@ -203,8 +215,8 @@ public class MainActivity extends AppCompatActivity {
         ActivateConnecting();
 
         loadPreferences();
-        joystick.setLocked(true);  // Блокировка джойстика
-        joystick.setAlpha(0.5f);
+//        joystick.setLocked(true);  // Блокировка джойстика
+//        joystick.setAlpha(0.5f);
         // Сохраняем данные при изменении текста
         ipAddressEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
@@ -304,103 +316,144 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        joystick.setJoystickListener(new JoystickView.JoystickListener() {
+        //Отработка отправки сообщений с ползунков
+        verticalSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onJoystickMove(float x, float y) {
-                // Преобразование координат джойстика
-//                Log.d("Joystick", "Joystick moved Input: x=" + x + ", y=" + y);
-                double x1 = (x - 270) / 150;
-                double y1 = (y - 270) / 150 * -1;
-
-                int x_coeff = 1;
-                int y_coeff = 1;
-                if (x1 < 0){ x_coeff = -1;}
-                if (y1 < 0){ y_coeff = -1;}
-
-                double a = sqrt(x1*x1 + y1*y1);
-
-                double y2 = y1*1/a;
-                double x2 = x1 * 1/a;
-
-                double xk = 0;
-                double yk = 0;
-                if (abs(x1) < abs(y1)){
-                    xk = x1*1/y1;
-                    yk = 1;
-                } else {
-                    yk = y1*1/x1;
-                    xk = 1;
-                }
-
-
-                double yt = y1* yk /y2;
-                double xt = x1 * xk /x2;
-
-                double normalizedY = abs(yt) * y_coeff;
-                double normalizedX = abs(xt) * x_coeff;
-
-//                List<Object> inputData = new ArrayList<>();
-//                inputData.add("OPERATOR");
-//                inputData.add("NKR");
-//                List<Object> nestedList = new ArrayList<>(Arrays.asList(normalizedY, normalizedX, 0.0, 0.0));
-//                inputData.add(nestedList);
-//
-//                connectRunnable.addTask(() -> connectRunnable.sendPacket(inputData));
-
-                lastX = normalizedX;
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                double normalizedY = (progress - 50) / 50.0;
                 lastY = normalizedY;
-                joystickMoving = true;
-
-//
-//                // Получаем текущее время
-//                long currentTime = System.currentTimeMillis();
-//
-//                // Проверяем, прошло ли достаточно времени с последней отправки пакета
-//                if (currentTime - lastPacketSentTime >= PACKET_SEND_DELAY_MS) {
-//                    // Обновляем время последней отправки
-//                    lastPacketSentTime = currentTime;
-//
-//                    List<Object> inputData = new ArrayList<>();
-//                    inputData.add("OPERATOR");
-//                    inputData.add("NKR");
-////                    normalizedY, normalizedX
-//                    List<Object> nestedList = new ArrayList<>(Arrays.asList(normalizedY, normalizedX, 0.0, 0.0));
-//                    inputData.add(nestedList);
-//
-//                    PackerAndUnpacker packerAndUnpacker = new PackerAndUnpacker();
-//                    List<Byte> packed_byte = packerAndUnpacker.pack(inputData);
-//
-//                    // Отправляем пакет с задержкой
-//                    handler.post(() -> {
-//                        connectRunnable.addTask(() -> connectRunnable.sendPacket(inputData));
-//
-//                        // Обработка координат джойстика
-//                        Log.d("Joystick", "Joystick moved: x=" + normalizedX + ", y=" + normalizedY + ", A =" + a);
-//                    });
-//                }
+                joystickYMoving = true;
+                local_y.setText("Y: " + normalizedY);
             }
             @Override
-            public void onJoystickRelease() { // код для обработки отпускания джостика
-                lastX = 0.0;
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                seekBar.setProgress(50);
                 lastY = 0.0;
-                joystickMoving = false;
+                joystickYMoving = false;
                 sendPacketWithLastData(connectRunnable);
-//                List<Object> inputData = new ArrayList<>();
-//                inputData.add("OPERATOR");
-//                inputData.add("NKR");
-//                List<Object> nestedList = new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0));
-//                inputData.add(nestedList);
-//
-//                handler.post(() -> {
-//                    connectRunnable.addTask(() -> connectRunnable.sendPacket(inputData));
-//                    // Обработка координат джойстика
-//                    Log.d("Joystick", "Joystick moved: x=" + 0 + ", y=" + 0);
-//                });
-
-                Log.d("Joystick", "Joystick released");
-
             }
         });
+
+        horizontalSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                double normalizedX = (progress - 50) / 50.0;
+                lastX = normalizedX;
+                joystickXMoving = true;
+                local_x.setText("X: " + normalizedX);
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                seekBar.setProgress(50);
+                lastX = 0.0;
+                joystickXMoving = false;
+                sendPacketWithLastData(connectRunnable);
+            }
+        });
+
+
+
+//        joystick.setJoystickListener(new JoystickView.JoystickListener() {
+//            @Override
+//            public void onJoystickMove(float x, float y) {
+//                // Преобразование координат джойстика
+////                Log.d("Joystick", "Joystick moved Input: x=" + x + ", y=" + y);
+//                double x1 = (x - 270) / 150;
+//                double y1 = (y - 270) / 150 * -1;
+//
+//                int x_coeff = 1;
+//                int y_coeff = 1;
+//                if (x1 < 0){ x_coeff = -1;}
+//                if (y1 < 0){ y_coeff = -1;}
+//
+//                double a = sqrt(x1*x1 + y1*y1);
+//
+//                double y2 = y1*1/a;
+//                double x2 = x1 * 1/a;
+//
+//                double xk = 0;
+//                double yk = 0;
+//                if (abs(x1) < abs(y1)){
+//                    xk = x1*1/y1;
+//                    yk = 1;
+//                } else {
+//                    yk = y1*1/x1;
+//                    xk = 1;
+//                }
+//
+//
+//                double yt = y1* yk /y2;
+//                double xt = x1 * xk /x2;
+//
+//                double normalizedY = abs(yt) * y_coeff;
+//                double normalizedX = abs(xt) * x_coeff;
+//
+////                List<Object> inputData = new ArrayList<>();
+////                inputData.add("OPERATOR");
+////                inputData.add("NKR");
+////                List<Object> nestedList = new ArrayList<>(Arrays.asList(normalizedY, normalizedX, 0.0, 0.0));
+////                inputData.add(nestedList);
+////
+////                connectRunnable.addTask(() -> connectRunnable.sendPacket(inputData));
+//
+//                lastX = normalizedX;
+//                lastY = normalizedY;
+//                joystickMoving = true;
+//
+////
+////                // Получаем текущее время
+////                long currentTime = System.currentTimeMillis();
+////
+////                // Проверяем, прошло ли достаточно времени с последней отправки пакета
+////                if (currentTime - lastPacketSentTime >= PACKET_SEND_DELAY_MS) {
+////                    // Обновляем время последней отправки
+////                    lastPacketSentTime = currentTime;
+////
+////                    List<Object> inputData = new ArrayList<>();
+////                    inputData.add("OPERATOR");
+////                    inputData.add("NKR");
+//////                    normalizedY, normalizedX
+////                    List<Object> nestedList = new ArrayList<>(Arrays.asList(normalizedY, normalizedX, 0.0, 0.0));
+////                    inputData.add(nestedList);
+////
+////                    PackerAndUnpacker packerAndUnpacker = new PackerAndUnpacker();
+////                    List<Byte> packed_byte = packerAndUnpacker.pack(inputData);
+////
+////                    // Отправляем пакет с задержкой
+////                    handler.post(() -> {
+////                        connectRunnable.addTask(() -> connectRunnable.sendPacket(inputData));
+////
+////                        // Обработка координат джойстика
+////                        Log.d("Joystick", "Joystick moved: x=" + normalizedX + ", y=" + normalizedY + ", A =" + a);
+////                    });
+////                }
+//            }
+//            @Override
+//            public void onJoystickRelease() { // код для обработки отпускания джостика
+//                lastX = 0.0;
+//                lastY = 0.0;
+//                joystickMoving = false;
+//                sendPacketWithLastData(connectRunnable);
+////                List<Object> inputData = new ArrayList<>();
+////                inputData.add("OPERATOR");
+////                inputData.add("NKR");
+////                List<Object> nestedList = new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0));
+////                inputData.add(nestedList);
+////
+////                handler.post(() -> {
+////                    connectRunnable.addTask(() -> connectRunnable.sendPacket(inputData));
+////                    // Обработка координат джойстика
+////                    Log.d("Joystick", "Joystick moved: x=" + 0 + ", y=" + 0);
+////                });
+//
+//                Log.d("Joystick", "Joystick released");
+//
+//            }
+//        });
 
 
         leftTurnButton.setOnClickListener(new View.OnClickListener() {
@@ -458,17 +511,17 @@ public class MainActivity extends AppCompatActivity {
                         List<Object> inputData = Arrays.asList("OPERATOR","STP",Arrays.asList(0));
                         connectRunnable.sendPacket(inputData);
                     });
-                    joystick.setLocked(false);
-                    joystick.setAlpha(1.0f);
+//                    joystick.setLocked(false);
+//                    joystick.setAlpha(1.0f);
                 } else {
                     brackeLock.setImageResource(lockActive);
                     connectRunnable.addTask(() -> {
                         List<Object> inputData = Arrays.asList("OPERATOR","STP",Arrays.asList(1));
                         connectRunnable.sendPacket(inputData);
                     });
-                    joystick.setLocked(true);
-                    // Блокировка джойстика
-                    joystick.setAlpha(0.5f);
+//                    joystick.setLocked(true);
+//                    // Блокировка джойстика
+//                    joystick.setAlpha(0.5f);
                 }
                 LockIsToggled[0] = !LockIsToggled[0]; // Смена состояния
             }
@@ -541,6 +594,8 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 } else if (id == R.id.settings) {
                     Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    rtspUrl = url_address.getText().toString();
+                    intent.putExtra("RTSP_URL_EXTRA", rtspUrl); // передача строки
                     startActivityForResult(intent, 1);
                 }
                 // Закрываем меню после нажатия
@@ -551,6 +606,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private double getNormalizedX() {
+        return (horizontalSeekBar.getProgress() - 50) / 50.0;
+    }
+
+    private double getNormalizedY() {
+        return (verticalSeekBar.getProgress() - 50) / 50.0;
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -558,13 +620,13 @@ public class MainActivity extends AppCompatActivity {
             rtspUrl = data.getStringExtra("RTSP_URL");
             if (rtspUrl != null) {
                 initializePlayer(rtspUrl);
+                savePreferences();
             }
         }
     }
 
     private void initializePlayer(String rtspUrl) {
         url_address.setText(rtspUrl);
-        videoView.setVisibility(View.VISIBLE);
 
         libVLC = new LibVLC(this);
         Media media = new Media(libVLC, Uri.parse(rtspUrl));
@@ -574,6 +636,7 @@ public class MainActivity extends AppCompatActivity {
 
         mediaPlayer = new MediaPlayer(libVLC);
         mediaPlayer.setMedia(media);
+        videoView.setVisibility(View.VISIBLE);
         mediaPlayer.attachViews(videoView, null, false, false);
         mediaPlayer.play();
     }
@@ -618,7 +681,7 @@ public class MainActivity extends AppCompatActivity {
         jostick_handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (joystickMoving) {
+                if (joystickXMoving || joystickYMoving) {
                     sendPacketWithLastData(connectRunnable); // Отправляем данные
                 } jostick_handler.postDelayed(this, PACKET_SEND_INTERVAL_MS); // Повторяем через 100 мс
             }
@@ -633,9 +696,11 @@ public class MainActivity extends AppCompatActivity {
 
         String ipAddress = ipAddressEditText.getText().toString();
         String port = portEditText.getText().toString();
+        String rtsp_ad = url_address.getText().toString();
 
         editor.putString(IP_ADDRESS_KEY, ipAddress);
         editor.putString(PORT_KEY, port);
+        editor.putString(RTSP_ADDRESS, rtsp_ad);
 
         editor.apply(); // Сохраняем данные
     }
@@ -646,10 +711,13 @@ public class MainActivity extends AppCompatActivity {
         // Загружаем сохраненные данные или задаем значения по умолчанию
         String savedIpAddress = sharedPreferences.getString(IP_ADDRESS_KEY, "192.168.2.235");
         String savedPort = sharedPreferences.getString(PORT_KEY, "8080");
+        String rtsp_adr = sharedPreferences.getString(RTSP_ADDRESS, "rtsp_address");
+
 
         // Заполняем EditText сохраненными данными
         ipAddressEditText.setText(savedIpAddress);
         portEditText.setText(savedPort);
+        url_address.setText(rtsp_adr);
     }
 
     // Runnable для отправки сообщения
